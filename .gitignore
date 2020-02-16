@@ -1,0 +1,32 @@
+# Testing
+.tox
+
+#NO swp!
+*.swp
+
+# Compiled
+*.pyc
+
+# Pycache Chaff
+__pycache__
+
+# Pytest
+.pytest_cache
+
+# NEVER commit the binary!
+aws-nuke
+
+# Don't commit PoC Code
+.idea
+
+# Terraform
+**/.terraform/*
+.terraform
+*.zip
+
+# Windows
+*.log
+
+# VSCode
+!.vscode/settings.json
+.vscode
