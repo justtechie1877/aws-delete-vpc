@@ -29,10 +29,10 @@ LOGGER.setLevel(logging.DEBUG)
 
 def get_ec2_status(vpc_id, aws_region):
     """A function to describe the EC2 instance resources.
-    Args:
-    vpc_id, aws_region
-    Returns:
-    True statement ==> clean exit if there are some running instances
+    :args:
+        vpc_id, aws_region
+    :return:
+        True statement ==> clean exit if there are some running instance(s)
     """
 
     # Create a boto3 session profile
@@ -45,14 +45,14 @@ def get_ec2_status(vpc_id, aws_region):
         )
     # Any clients created from this session will use credentials
     # from the [profile_name] section of ~/.aws/credentials.
-    ec2client = session.client('ec2')
+    ec2_client = session.client('ec2')
 
     # Check for running EC2 instance(s)
     filters = [
         {"Name": "instance-state-name", "Values": ["running", "stopped"]},
         {"Name": "vpc-id", "Values": [vpc_id]},
     ]
-    ec2_instances = ec2client.describe_instances(
+    ec2_instances = ec2_client.describe_instances(
         Filters=filters
     )['Reservations']
     instance_ids, state_names = [], []
@@ -80,8 +80,8 @@ def get_ec2_status(vpc_id, aws_region):
 
 def get_rds_status(vpc_id, aws_region):
     """A function to describe the RDS DB instance resources.
-    Returns:
-    True statement
+    :returns:
+        true statement
     """
     # Create a boto3 session profile
     session = boto3.Session(
@@ -93,14 +93,14 @@ def get_rds_status(vpc_id, aws_region):
         )
     # Any clients created from this session will use credentials
     # from the [profile_name] section of ~/.aws/credentials.
-    rds = session.client('rds')
+    rds_client = session.client('rds')
 
     # Check for RDS instances
     filters = [
         {"Name": "db-instance-id", "Values": ["available"]},
         # {"Name": "tag:Name", "Values": [vpc_id]},
     ]
-    rds_instances = rds.describe_db_instances(Filters=filters)['DBInstances']
+    rds_instances = rds_client.describe_db_instances(Filters=filters)['DBInstances']
     if len(rds_instances) > 0:
         for rdb in rds_instances:
             if rdb["DBSecurityGroup"]["VpcId"] == vpc_id:
