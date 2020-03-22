@@ -35,7 +35,7 @@ required arguments:
 optional arguments:
   --cust_gw_id CUST_GW_ID
                         The cust_gw_id
-  
+  --tgw_id TGW_ID       The transit_gw_id
 
 
 ### Sample Output
