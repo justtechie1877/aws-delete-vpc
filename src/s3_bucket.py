@@ -36,7 +36,6 @@ def delete_s3_bucket():
     )
     # Any clients created from this session will use credentials
     # from the [profile_name] section of ~/.aws/credentials.
-    )
     s3_client = session.client('s3')
     s3 = session.resource('s3')
 
