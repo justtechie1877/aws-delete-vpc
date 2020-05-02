@@ -72,8 +72,7 @@ def get_ec2_status(vpc_id, aws_region):
             # 'state_names'])
             # )
         sys.exit(f"Running EC2 {inst_id} with status: <{st_name}> in the {vpc_id}. \
-                 Please delete the EC2 or RDS instance/cluster first..."
-                 )
+                  Please delete the EC2 or RDS instance/cluster first...")
     else:
         LOGGER.info(f"No running EC2 instances in the {vpc_id}.")
 

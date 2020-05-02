@@ -134,7 +134,7 @@ def delete_vpc(vpc_id, aws_region):
                 NetworkInterfaceId=eni["NetworkInterfaceId"],
             )
             LOGGER.info(f"Waiting on ENIs to delete")
-            time.sleep(30)
+            time.sleep(120)
         except Exception as ex:
             LOGGER.error(ex)
             if eni not in enis:
@@ -166,9 +166,9 @@ def delete_vpc(vpc_id, aws_region):
     if len(sec_grps) > 0:
         for sg in sec_grps:
             if sg["GroupName"] != "default":
-                # LOGGER.info(f'List of SGs_Id: {sg["GroupId"]}')
+                LOGGER.info(f'List of SGs_Id: {sg["GroupId"]}')
                 for ingress in sg['IpPermissions']:
-                    # LOGGER.info(f'List of ingress rules: {ingress}')
+                    LOGGER.info(f'List of ingress rules: {ingress}')
                     ec2_client.revoke_security_group_ingress(
                         GroupId=sg["GroupId"],
                         IpPermissions=[ingress],
@@ -177,8 +177,9 @@ def delete_vpc(vpc_id, aws_region):
                                 Group Name: {sg["GroupName"]}'
                                 )
                 for egress in sg['IpPermissionsEgress']:
-                    # LOGGER.info(f'List of egress rules: {egress}')
+                    LOGGER.info(f'List of egress rules: {egress}')
                     ec2_client.revoke_security_group_egress(
+                        GroupId=sg["GroupId"],
                         IpPermissions=[egress],
                     )
                     LOGGER.info(f'Removing {egress} from Group ID: {sg["GroupId"]},\
@@ -243,8 +244,8 @@ def delete_vpc(vpc_id, aws_region):
     try:
         for vpn_gw in vpn_gws:
             ec2_client.detach_vpn_gateway(
-                    VpnGatewayId=vpn_gw["VpnGatewayId"],
-                    VpcId=vpc_id,
+                VpnGatewayId=vpn_gw["VpnGatewayId"],
+                VpcId=vpc_id,
             )
             LOGGER.info(f"Detaching the ==> {vpn_gw}")
             time.sleep(60)
@@ -274,8 +275,8 @@ def delete_vpc(vpc_id, aws_region):
                 LOGGER.info(f"Deleting the {vpn_con}")
                 time.sleep(60)
             elif not ec2_client.detach_vpn_gateway(
-                VpcId=vpc_id,
-                VpnGatewayId=vpn_con["VpnGatewayId"],
+                        VpnGatewayId=vpn_con["VpnGatewayId"],
+                        VpcId=vpc_id,
             ):
                 LOGGER.info(f"An error occurred (InvalidVpnGatewayAttachment.NotFound) \
                              when calling the DetachVpnGateway operation: \
@@ -286,7 +287,7 @@ def delete_vpc(vpc_id, aws_region):
         sys.exit()
 
     # Delete transit gateway attachment for this vpc
-    # Note - this only handles vpc attachments, not vpn
+    # Note - this only handles vpc<=>tgw attachments, not vpn<=>tgw
     filters = [
         {"Name": "vpc-id", "Values": [vpc_id]}
     ]
@@ -301,7 +302,7 @@ def delete_vpc(vpc_id, aws_region):
                     "TransitGatewayAttachmentId"
                 ]
             )
-            time.sleep(30)
+            time.sleep(60)
 
     # Disassociate the route table(s)
     filters = [
@@ -391,6 +392,8 @@ def delete_vpc(vpc_id, aws_region):
 
 
 def main(vpc_id, aws_region):
+    ''' Main function
+    '''
     vpc_exists(vpc_id, aws_region)
     delete_vpc(vpc_id, aws_region)
 
@@ -399,4 +402,4 @@ if __name__ == "__main__":
     try:
         main(sys.argv[1], sys.argv[2])
     except KeyboardInterrupt:
-        exit(0)
+        sys.exit(0)
